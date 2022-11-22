@@ -1,6 +1,8 @@
 --[[
+
 Mod: Light Hotkey - OpenMW Lua
 Author: Pharis
+
 --]]
 
 local core = require('openmw.core')
@@ -9,6 +11,7 @@ local self = require('openmw.self')
 local ui = require('openmw.ui')
 local interface = require('openmw.interfaces')
 local storage = require('openmw.storage')
+local input = require('openmw.input')
 
 local Actor = types.Actor
 local Armor = types.Armor
@@ -16,16 +19,15 @@ local Light = types.Light
 
 local actorInventory = Actor.inventory(self)
 local carriedLeft = Actor.EQUIPMENT_SLOT.CarriedLeft
-local carriedRight = Actor.EQUIPMENT_SLOT.CarriedRight
 
 local lastShield
-local lastWeapon
+local preferredLight
 
-local modName = "lightHotkey"
+local modName = "LightHotkey"
 local playerSettings = storage.playerSection('SettingsPlayer' .. modName)
-local modEnableConfDesc = "Enable Mod"
-local showDebugConfDesc = "Show Debug Messages"
-local swapLightHotkey = key.symbol.c
+local modEnableConfDesc = "To mod or not to mod."
+local showDebugConfDesc = "Prints to console."
+local swapLightHotkey = 'c'
 
 ----------------------------------------------------------------------
 local function setting(key, renderer, argument, name, description, default)
@@ -53,8 +55,8 @@ interface.Settings.registerGroup {
 	name = "Player Settings",
 	permanentStorage = false,
 	settings = {
-		setting('modEnableConf', 'checkbox', {}, "test name", modEnableConfDesc, true),
-		setting('showDebugConf', 'checkbox', {}, "", showDebugConfDesc, false),
+		setting('modEnableConf', 'checkbox', {}, "Enable mod", modEnableConfDesc, true),
+		setting('showDebugConf', 'checkbox', {}, "Show Debug Messages", showDebugConfDesc, false),
 	}
 }
 ----------------------------------------------------------------------
@@ -65,22 +67,19 @@ local function debugMessage(msg)
 
 	if msg == 'load' then
 		ui.printToConsole("[" .. modName .. "] " .. "Loaded.", ui.CONSOLE_COLOR.Default)
-		if not lastShield then return end
+		if lastShield then
 		ui.printToConsole("[" .. modName .. "] " .. "Loaded saved shield: " .. lastShield, ui.CONSOLE_COLOR.Default)
+		end
+		if preferredLight then
+			ui.printToConsole("[" .. modName .. "] " .. "Loaded preferred light: " .. preferredLight, ui.CONSOLE_COLOR.Default)
+		end
 	elseif msg == 'shieldSave' then
 		ui.printToConsole("[" .. modName .. "] " .. "Shield saved.", ui.CONSOLE_COLOR.Default)
 	elseif msg == 'equipLight' then
-		ui.printToConsole("[" .. modName .. "] " .. "light equipped.", ui.CONSOLE_COLOR.Default)
+		ui.printToConsole("[" .. modName .. "] " .. "Light equipped.", ui.CONSOLE_COLOR.Default)
 	elseif msg == 'unequipLight' then
-		ui.printToConsole("[" .. modName .. "] " .. "Unequipping Light.", ui.CONSOLE_COLOR.Default)
+		ui.printToConsole("[" .. modName .. "] " .. "Light unequipped.", ui.CONSOLE_COLOR.Default)
 	end
-end
-
-local function unequipLight()
-	local equipment = Actor.equipment(self)
-	equipment[carriedLeft] = nil
-	Actor.setEquipment(self, equipment)
-	debugMessage('unequiplight')
 end
 
 local function getFirstLight()
@@ -89,59 +88,76 @@ local function getFirstLight()
 	end
 end
 
-local function equip(object, slot)
+local function equip(slot, object)
     local equipment = Actor.equipment(self)
-    equipment[Actor.slot] = object
+    equipment[slot] = object
     Actor.setEquipment(self, equipment)
 end
 
 local function swap(key)
 	-- If incorrect key pressed do nothing
-	if key.symbol ~= 'c' then return end
+	if key.symbol ~= swapLightHotkey then return end
 
 	-- If mod is disabled do nothing
 	if not playerSettings:get('modEnableConf') then return end
-	
+
 	-- If game is paused do nothing
 	if core.isWorldPaused() then return end
-	
+
 	local equipment = Actor.equipment(self)
-	
+
 	-- Has light equipped
-	local carryingLight = equipment[carriedLeft]
-	if carryingLight and Light.objectIsInstance(carryingLight) then
+	local equippedLight = equipment[carriedLeft]
+	if equippedLight and Light.objectIsInstance(equippedLight) then
+
+		-- Set/clear preferred light if alt is held when hotkey is pressed
+		if key.withAlt then
+			if preferredLight == equippedLight.recordId then
+				preferredLight = nil
+				ui.showMessage("Cleared preferred light.")
+			return
+			end
+
+			preferredLight = equippedLight.recordId
+			ui.showMessage("Set preferred light.")
+			return
+		end
+
 		-- Unequip light
-		unequipLight()
+		equip(carriedLeft, nil)
+		debugMessage('unequipLight')
 
 		-- Equip stored shield if any
 		if lastShield then
 			equip(carriedLeft, lastShield)
-			-- equipment[carriedLeft] = lastShield
-			-- Actor.setEquipment(self, equipment)
+			return
 		end
 
 		return
 	end
 
 	-- No light Equipped
-	local firstLight = getFirstLight()
+	local firstLight = getFirstLight().recordId
 	if firstLight then
 		lastShield = nil
-		
+		lastWeapon = nil
+
 		-- Store currently equipped shield if any
-		local equippedShield = Actor.equipment(self, carriedLeft)
+		local equippedShield = equipment[carriedLeft]
 		if equippedShield and Armor.objectIsInstance(equippedShield) then
-			lastShield = equippedShield
+			lastShield = equippedShield.recordId
 			debugMessage('shieldSave')
 		end
-		
+
 		-- Equip light
-		-- equipment[carriedLeft] = firstLight
-		-- Actor.setEquipment(self, equipment)
-		equip(carriedLeft, firstLight)
+		if preferredLight and actorInventory:countOf(preferredLight) >= 1 then
+			equip(carriedLeft, preferredLight)
+			ui.showMessage("test")
+		else
+			equip(carriedLeft, firstLight)
+		end
 		debugMessage('equipLight')
-		ui.showMessage("Equipped light: " .. firstLight.recordId)
-		
+
 		return
 	end
 
@@ -151,14 +167,16 @@ end
 return {
 	engineHandlers = {
 		onKeyPress = swap,
+		onUpdate = weaponCheck,
 		onLoad = function(data)
-			lastShield = data
+			if not data then return end
+			lastShield = data.lastShield
+			preferredLight = data.preferredLight
 			debugMessage('load')
 		end,
 		onSave = function()
-			if lastShield then
-				return lastShield.recordId
-			end
-		end
+			if lastShield then return {lastShield = lastShield} end
+			if preferredLight then return {preferredLight = preferredLight} end
+		end,
 	}
 }
