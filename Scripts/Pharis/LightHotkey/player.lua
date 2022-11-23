@@ -26,7 +26,7 @@ local preferredLight
 local modName = "LightHotkey"
 local playerSettings = storage.playerSection('SettingsPlayer' .. modName)
 local modEnableConfDesc = "To mod or not to mod."
-local showDebugConfDesc = "Prints to console."
+local showDebugConfDesc = "Prints basic debug messages to console."
 local swapLightHotkey = 'c'
 
 ----------------------------------------------------------------------
@@ -55,7 +55,7 @@ interface.Settings.registerGroup {
 	name = "Player Settings",
 	permanentStorage = false,
 	settings = {
-		setting('modEnableConf', 'checkbox', {}, "Enable mod", modEnableConfDesc, true),
+		setting('modEnableConf', 'checkbox', {}, "Enable Mod", modEnableConfDesc, true),
 		setting('showDebugConf', 'checkbox', {}, "Show Debug Messages", showDebugConfDesc, false),
 	}
 }
@@ -66,25 +66,23 @@ local function debugMessage(msg)
 	if not playerSettings:get('showDebugConf') then return end
 
 	if msg == 'load' then
-		ui.printToConsole("[" .. modName .. "] " .. "Loaded.", ui.CONSOLE_COLOR.Default)
+		ui.printToConsole("[" .. modName .. "] " .. "Mod loaded.", ui.CONSOLE_COLOR.Default)
 		if lastShield then
-		ui.printToConsole("[" .. modName .. "] " .. "Loaded saved shield: " .. lastShield, ui.CONSOLE_COLOR.Default)
+			ui.printToConsole("[" .. modName .. "] " .. "Loaded saved shield: " .. lastShield, ui.CONSOLE_COLOR.Default)
 		end
 		if preferredLight then
 			ui.printToConsole("[" .. modName .. "] " .. "Loaded preferred light: " .. preferredLight, ui.CONSOLE_COLOR.Default)
 		end
 	elseif msg == 'shieldSave' then
-		ui.printToConsole("[" .. modName .. "] " .. "Shield saved.", ui.CONSOLE_COLOR.Default)
-	elseif msg == 'equipLight' then
-		ui.printToConsole("[" .. modName .. "] " .. "Light equipped.", ui.CONSOLE_COLOR.Default)
-	elseif msg == 'unequipLight' then
-		ui.printToConsole("[" .. modName .. "] " .. "Light unequipped.", ui.CONSOLE_COLOR.Default)
+		ui.printToConsole("[" .. modName .. "] " .. "Shield saved: " .. lastShield, ui.CONSOLE_COLOR.Default)
+	elseif msg == 'equipPreferredLight' then
+		ui.printToConsole("[" .. modName .. "] " .. "Preferred light equipped.", ui.CONSOLE_COLOR.Default)
 	end
 end
 
 local function getFirstLight()
 	for _, object in ipairs(actorInventory:getAll(Light)) do
-			return object
+		return object
 	end
 end
 
@@ -115,7 +113,7 @@ local function swap(key)
 			if preferredLight == equippedLight.recordId then
 				preferredLight = nil
 				ui.showMessage("Cleared preferred light.")
-			return
+				return
 			end
 
 			preferredLight = equippedLight.recordId
@@ -125,12 +123,10 @@ local function swap(key)
 
 		-- Unequip light
 		equip(carriedLeft, nil)
-		debugMessage('unequipLight')
 
 		-- Equip stored shield if any
-		if lastShield then
+		if lastShield and actorInventory:countOf(preferredLight) >= 1 then
 			equip(carriedLeft, lastShield)
-			return
 		end
 
 		return
@@ -140,7 +136,6 @@ local function swap(key)
 	local firstLight = getFirstLight().recordId
 	if firstLight then
 		lastShield = nil
-		lastWeapon = nil
 
 		-- Store currently equipped shield if any
 		local equippedShield = equipment[carriedLeft]
@@ -152,11 +147,10 @@ local function swap(key)
 		-- Equip light
 		if preferredLight and actorInventory:countOf(preferredLight) >= 1 then
 			equip(carriedLeft, preferredLight)
-			ui.showMessage("test")
+			debugMessage('equipPreferredLight')
 		else
 			equip(carriedLeft, firstLight)
 		end
-		debugMessage('equipLight')
 
 		return
 	end
@@ -167,7 +161,6 @@ end
 return {
 	engineHandlers = {
 		onKeyPress = swap,
-		onUpdate = weaponCheck,
 		onLoad = function(data)
 			if not data then return end
 			lastShield = data.lastShield
@@ -175,8 +168,10 @@ return {
 			debugMessage('load')
 		end,
 		onSave = function()
-			if lastShield then return {lastShield = lastShield} end
-			if preferredLight then return {preferredLight = preferredLight} end
+			return {
+				lastShield = lastShield,
+				preferredLight = preferredLight
+			}
 		end,
 	}
 }
