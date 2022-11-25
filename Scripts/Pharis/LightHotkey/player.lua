@@ -26,10 +26,9 @@ local preferredLight
 local modName = "LightHotkey"
 local playerSettings = storage.playerSection('SettingsPlayer' .. modName)
 local modEnableConfDesc = "To mod or not to mod."
-local showDebugConfDesc = "Prints basic debug messages to console."
+local logDebugConfDesc = "Press F10 to see logged messages in-game."
 local swapLightHotkey = 'c'
 
-----------------------------------------------------------------------
 local function setting(key, renderer, argument, name, description, default)
 	return {
 		key = key,
@@ -45,7 +44,7 @@ interface.Settings.registerPage {
 	key = modName,
 	l10n = modName,
 	name = "Light Hotkey",
-	description = "Equip light with hotkey; automatically re-equip shield when light is unequipped."
+	description = "By Pharis\n\nEquip light with hotkey; automatically re-equip shield when light is unequipped."
 }
 
 interface.Settings.registerGroup {
@@ -56,27 +55,23 @@ interface.Settings.registerGroup {
 	permanentStorage = false,
 	settings = {
 		setting('modEnableConf', 'checkbox', {}, "Enable Mod", modEnableConfDesc, true),
-		setting('showDebugConf', 'checkbox', {}, "Show Debug Messages", showDebugConfDesc, false),
+		setting('showDebugConf', 'checkbox', {}, "Log Debug Messages", logDebugConfDesc, false),
 	}
 }
-----------------------------------------------------------------------
 
+-- Optional debug messages
 local function debugMessage(msg)
 	-- If debug messages disabled do nothing
 	if not playerSettings:get('showDebugConf') then return end
-
 	if msg == 'load' then
-		ui.printToConsole("[" .. modName .. "] " .. "Mod loaded.", ui.CONSOLE_COLOR.Default)
-		if lastShield then
-			ui.printToConsole("[" .. modName .. "] " .. "Loaded saved shield: " .. lastShield, ui.CONSOLE_COLOR.Default)
-		end
-		if preferredLight then
-			ui.printToConsole("[" .. modName .. "] " .. "Loaded preferred light: " .. preferredLight, ui.CONSOLE_COLOR.Default)
-		end
+		if lastShield then print("Loaded saved shield: " .. lastShield) end
+		if preferredLight then print("Loaded preferred light: " .. preferredLight) end
 	elseif msg == 'shieldSave' then
-		ui.printToConsole("[" .. modName .. "] " .. "Shield saved: " .. lastShield, ui.CONSOLE_COLOR.Default)
+		print("Shield saved: " .. lastShield)
 	elseif msg == 'equipPreferredLight' then
-		ui.printToConsole("[" .. modName .. "] " .. "Preferred light equipped.", ui.CONSOLE_COLOR.Default)
+		print("Preferred light equipped")
+	elseif msg == 'noPreferredLight' then
+		print("No preferred light found, equipping first light")
 	end
 end
 
@@ -95,19 +90,16 @@ end
 local function swap(key)
 	-- If incorrect key pressed do nothing
 	if key.symbol ~= swapLightHotkey then return end
-
 	-- If mod is disabled do nothing
 	if not playerSettings:get('modEnableConf') then return end
-
 	-- If game is paused do nothing
 	if core.isWorldPaused() then return end
 
 	local equipment = Actor.equipment(self)
 
-	-- Has light equipped
+	-- If any light equipped
 	local equippedLight = equipment[carriedLeft]
 	if equippedLight and Light.objectIsInstance(equippedLight) then
-
 		-- Set/clear preferred light if alt is held when hotkey is pressed
 		if key.withAlt then
 			if preferredLight == equippedLight.recordId then
@@ -125,16 +117,17 @@ local function swap(key)
 		equip(carriedLeft, nil)
 
 		-- Equip stored shield if any
-		if lastShield and actorInventory:countOf(preferredLight) >= 1 then
+		if lastShield and actorInventory:countOf(lastShield) >= 1 then
 			equip(carriedLeft, lastShield)
 		end
 
 		return
 	end
 
-	-- No light Equipped
-	local firstLight = getFirstLight().recordId
+	-- If no light Equipped
+	local firstLight = getFirstLight()
 	if firstLight then
+		firstLight = firstLight.recordId
 		lastShield = nil
 
 		-- Store currently equipped shield if any
@@ -150,6 +143,7 @@ local function swap(key)
 			debugMessage('equipPreferredLight')
 		else
 			equip(carriedLeft, firstLight)
+			debugMessage('noPreferredLight')
 		end
 
 		return
@@ -160,8 +154,12 @@ end
 
 return {
 	engineHandlers = {
+		onInit = function()
+			print("Initialized Light Hotkey")
+		end,
 		onKeyPress = swap,
 		onLoad = function(data)
+			-- data can potentially be nil, throws error
 			if not data then return end
 			lastShield = data.lastShield
 			preferredLight = data.preferredLight
