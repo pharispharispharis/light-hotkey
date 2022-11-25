@@ -1,7 +1,4 @@
 ## Version History
-----
-
-<br>
 
 ### 1.0.0
 \> Initial Release.
