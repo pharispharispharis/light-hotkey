@@ -70,12 +70,12 @@ interfaces.Settings.registerGroup {
 	key = 'SettingsPlayer' .. modName,
 	page = modName,
 	l10n = modName,
-	name = "Main Settings",
+	name = "General Settings",
 	permanentStorage = false,
 	settings = {
 		settingTemplate('modEnableConf', 'checkbox', {}, "Enable Mod", modEnableConfDesc, true),
-		settingTemplate('showDebugConf', 'checkbox', {}, "Log Debug Messages", logDebugConfDesc, false),
 		settingTemplate('modHotkeyConf', 'inputKeySelection', {}, "Choose Light Hotkey", modHotkeyConfDesc, input.KEY.C),
+		settingTemplate('showDebugConf', 'checkbox', {}, "Log Debug Messages", logDebugConfDesc, false),
 	}
 }
 
