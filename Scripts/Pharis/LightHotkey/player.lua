@@ -6,54 +6,59 @@ Author: Pharis
 --]]
 
 local core = require('openmw.core')
-local types = require('openmw.types')
-local self = require('openmw.self')
-local ui = require('openmw.ui')
-local interfaces = require('openmw.interfaces')
-local storage = require('openmw.storage')
 local input = require('openmw.input')
-local settings = require('Scripts.Pharis.LightHotkey.settings')
+local self = require('openmw.self')
+local storage = require('openmw.storage')
+local types = require('openmw.types')
+local ui = require('openmw.ui')
 
-local Actor = types.Actor
+-- Mod info
+local modInfo = require('Scripts.Pharis.LightHotkey.modInfo')
+local modName = modInfo.modName
+local modVersion = modInfo.modVersion
+
+-- Settings
+local playerSettings = storage.playerSection('SettingsPlayer' .. modName)
+
+-- Other Variables
+local Player = types.Player
 local Armor = types.Armor
 local Light = types.Light
 
-local actorInventory = Actor.inventory(self)
-local carriedLeft = Actor.EQUIPMENT_SLOT.CarriedLeft
-
+local playerInventory = Player.inventory(self)
+local carriedLeft = Player.EQUIPMENT_SLOT.CarriedLeft
 local lastShield
 local preferredLight
 
-local function logger(msg)
-	-- If debug messages disabled do nothing
-	if not settings.playerSettings:get('showDebugConf') then return end
-	print('[', settings.modName, '] ', tostring(msg))
+local function debugMessage(msg)
+	if not playerSettings:get('showDebugConf') then return end
+
+	print('[' .. modName .. ']', string.format(msg, _))
 end
 
 local function getFirstLight()
-	for _, object in ipairs(actorInventory:getAll(Light)) do
+	for _, object in ipairs(playerInventory:getAll(Light)) do
 		return object
 	end
 end
 
 local function equip(slot, object)
-    local equipment = Actor.equipment(self)
-    equipment[slot] = object
-    Actor.setEquipment(self, equipment)
+    local playerEquipment = Player.equipment(self)
+    playerEquipment[slot] = object
+    Player.setEquipment(self, playerEquipment)
 end
 
-local function swap(key)
-	-- If incorrect key pressed do nothing
-	if key.code ~= settings.playerSettings:get('modHotkeyConf') then return end
-	-- If mod is disabled do nothing
-	if not settings.playerSettings:get('modEnableConf') then return end
-	-- If game is paused do nothing
+local function lightSwap(key)
+	if key.code ~= playerSettings:get('modHotkeyConf') then return end
+
+	if not playerSettings:get('modEnableConf') then return end
+
 	if core.isWorldPaused() then return end
 
-	local equipment = Actor.equipment(self)
+	local playerEquipment = Player.equipment(self)
 
 	-- If any light equipped
-	local equippedLight = equipment[carriedLeft]
+	local equippedLight = playerEquipment[carriedLeft]
 	if equippedLight and Light.objectIsInstance(equippedLight) then
 		-- Set/clear preferred light if alt is held when hotkey is pressed
 		if key.withAlt then
@@ -72,7 +77,7 @@ local function swap(key)
 		equip(carriedLeft, nil)
 
 		-- Equip stored shield if any
-		if lastShield and actorInventory:countOf(lastShield) >= 1 then
+		if lastShield and playerInventory:countOf(lastShield) >= 1 then
 			equip(carriedLeft, lastShield)
 		end
 
@@ -86,19 +91,19 @@ local function swap(key)
 		lastShield = nil
 
 		-- Store currently equipped shield if any
-		local equippedShield = equipment[carriedLeft]
+		local equippedShield = playerEquipment[carriedLeft]
 		if equippedShield and Armor.objectIsInstance(equippedShield) then
 			lastShield = equippedShield.recordId
-			logger("Shield saved: " .. lastShield)
+			debugMessage("Shield saved: " .. lastShield)
 		end
 
 		-- Equip light
-		if preferredLight and actorInventory:countOf(preferredLight) >= 1 then
+		if preferredLight and playerInventory:countOf(preferredLight) >= 1 then
 			equip(carriedLeft, preferredLight)
-			logger("Preferred light equipped")
+			debugMessage("Preferred light equipped")
 		else
 			equip(carriedLeft, firstLight)
-			logger("No preferred light found, equipping first light")
+			debugMessage("No preferred light found, equipping first light")
 		end
 
 		return
@@ -107,25 +112,27 @@ local function swap(key)
 	ui.showMessage("I'm not carrying any lights.")
 end
 
+local function onSave()
+	return {
+		lastShield = lastShield,
+		preferredLight = preferredLight
+	}
+end
+
+local function onLoad()
+	-- data can potentially be nil, throws error
+	if not data then return end
+
+	lastShield = data.lastShield
+	preferredLight = data.preferredLight
+	debugMessage("Loaded saved shield: " .. lastShield)
+	debugMessage("Loaded preferred light: " .. preferredLight)
+end
+
 return {
 	engineHandlers = {
-		onInit = function ()
-			print("[", settings.modName, "] Initialized v" .. settings.modVersion)
-		end,
-		onKeyPress = swap,
-		onLoad = function(data)
-			-- data can potentially be nil, throws error
-			if not data then return end
-			lastShield = data.lastShield
-			preferredLight = data.preferredLight
-			if lastShield then logger("Loaded saved shield: " .. lastShield) end
-			if preferredLight then logger("Loaded preferred light: " .. preferredLight) end
-		end,
-		onSave = function()
-			return {
-				lastShield = lastShield,
-				preferredLight = preferredLight
-			}
-		end,
+		onKeyPress = lightSwap,
+		onLoad = onLoad,
+		onSave = onSave,
 	}
 }
