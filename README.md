@@ -7,7 +7,7 @@ Updates are planned for the future as OpenMW Lua progresses.
 
 ## Requirements
 
-This mod uses OpenMW Lua and as such requires OpenMW 0.48 or higher.
+This mod uses OpenMW Lua and requires OpenMW 0.48 or higher.
 <br><br>
 
 ## Known Issues/Incompatibilities
