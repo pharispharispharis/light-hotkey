@@ -31,9 +31,9 @@ local lastShield
 local preferredLight
 
 local function debugMessage(msg)
-	if not playerSettings:get('showDebugConf') then return end
+	if not playerSettings:get('showDebug') then return end
 
-	print('[' .. modName .. ']', string.format(msg, _))
+	print("[" .. modName .. "]", string.format(msg, _))
 end
 
 local function getFirstLight()
@@ -49,9 +49,9 @@ local function equip(slot, object)
 end
 
 local function lightSwap(key)
-	if key.code ~= playerSettings:get('modHotkeyConf') then return end
+	if key.code ~= playerSettings:get('modHotkey') then return end
 
-	if not playerSettings:get('modEnableConf') then return end
+	if not playerSettings:get('modEnable') then return end
 
 	if core.isWorldPaused() then return end
 
