@@ -20,7 +20,7 @@ local modVersion = modInfo.modVersion
 -- General settings description(s)
 local modEnableDescription = "To mod or not to mod."
 local logDebugDescription = "Press F10 to see logged messages in-game."
-local modHotkeyDescription = "Choose which key equips a light; picking \'alt\' isn't recommended as preferred light is set with \'alt > hotkey\'."
+local lightHotkeyDescription = "Choose which key equips a light; picking \'alt\' isn't recommended as preferred light is set with \'alt > hotkey\'."
 
 -- Other variables
 local playerSettings = storage.playerSection('SettingsPlayer' .. modName)
@@ -39,7 +39,7 @@ end
 local function updateModDisabled()
     local disabled = not playerSettings:get('modEnable')
     I.Settings.updateRendererArgument('SettingsPlayer' .. modName, 'showDebug', {disabled = disabled})
-    I.Settings.updateRendererArgument('SettingsPlayer' .. modName, 'modHotkey', {disabled = disabled})
+    I.Settings.updateRendererArgument('SettingsPlayer' .. modName, 'lightHotkey', {disabled = disabled})
 end
 
 playerSettings:subscribe(async:callback(updateModDisabled))
@@ -49,7 +49,7 @@ local function initSettings()
 		local name = "No Key Set"
 		if value then
 			if value == input.KEY.Escape then
-				name = input.getKeyName(playerSettings:get('modHotkey'))
+				name = input.getKeyName(playerSettings:get('lightHotkey'))
 			else
 				name = input.getKeyName(value)
 			end
@@ -94,7 +94,7 @@ end)
 		settings = {
 			setting('modEnable', 'checkbox', {}, "Enable Mod", modEnableDescription, true),
 			setting('showDebug', 'checkbox', {}, "Log Debug Messages", logDebugDescription, false),
-			setting('modHotkey', 'inputKeySelection', {}, "Light Hotkey", modHotkeyDescription, input.KEY.C),
+			setting('lightHotkey', 'inputKeySelection', {}, "Light Hotkey", lightHotkeyDescription, input.KEY.C),
 		}
 	}
 

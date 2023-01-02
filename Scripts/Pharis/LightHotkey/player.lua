@@ -49,7 +49,7 @@ local function equip(slot, object)
 end
 
 local function lightSwap(key)
-	if key.code ~= playerSettings:get('modHotkey') then return end
+	if key.code ~= playerSettings:get('lightHotkey') then return end
 
 	if not playerSettings:get('modEnable') then return end
 
