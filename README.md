@@ -1,6 +1,6 @@
 ## Description
 
-When a hotkey (default 'c') is pressed a light from the players inventory will be equipped and their currently equipped shield, if any, will be stored to be automatically re-equipped when the hotkey is pressed again. By pressing alt > hotkey the player can assign the currently equipped light as their preferred light; the preferred light will be prioritized whenever a light is equipped using the hotkey. Preferred light and saved shield will be preserved between sessions, though it may get confused between multiple objects with the same Id in the player's inventory.
+When a hotkey (default 'v') is pressed a light from the players inventory will be equipped and their currently equipped shield, if any, will be stored to be automatically re-equipped when the hotkey is pressed again. By pressing alt > hotkey the player can assign the currently equipped light as their preferred light; the preferred light will be prioritized whenever a light is equipped using the hotkey. Preferred light and saved shield will be preserved between sessions, though it may get confused between multiple objects with the same Id in the player's inventory.
 
 Updates are planned for the future as OpenMW Lua progresses.
 <br><br>
