@@ -9,13 +9,15 @@ local async = require('openmw.async')
 local core = require('openmw.core')
 local I = require('openmw.interfaces')
 local input = require('openmw.input')
-local storage = require('openmw.storage')
 local ui = require('openmw.ui')
 
 -- Mod info
 local modInfo = require('Scripts.Pharis.LightHotkey.modInfo')
 local modName = modInfo.modName
 local modVersion = modInfo.modVersion
+
+-- Page description(s)
+local pageDescription = "By Pharis\nv" .. modVersion .. "\n\nEquip light with hotkey; automatically re-equip shield when light is unequipped."
 
 -- General settings description(s)
 local modEnableDescription = "To mod or not to mod."
@@ -69,6 +71,7 @@ local function initSettings()
 							events = {
 								keyPress = async:callback(function(e)
 									if e.code == input.KEY.Escape then return end
+
 									set(e.code)
 								end),
 							},
@@ -83,7 +86,7 @@ end)
 		key = modName,
 		l10n = modName,
 		name = "Light Hotkey",
-		description = "By Pharis\n\nEquip light with hotkey; automatically re-equip shield when light is unequipped."
+		description = pageDescription
 	}
 
 	I.Settings.registerGroup {
@@ -119,7 +122,7 @@ end)
 		name = "Controls",
 		permanentStorage = false,
 		settings = {
-			setting('lightHotkey', 'inputKeySelection', {}, "Light Hotkey", lightHotkeyDescription, input.KEY.C),
+			setting('lightHotkey', 'inputKeySelection', {}, "Light Hotkey", lightHotkeyDescription, input.KEY.V),
 		}
 	}
 

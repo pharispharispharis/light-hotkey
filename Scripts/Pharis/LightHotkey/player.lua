@@ -33,8 +33,7 @@ local playerInventory = Actor.inventory(self)
 local carriedLeft = Actor.EQUIPMENT_SLOT.CarriedLeft
 local carriedRight = Actor.EQUIPMENT_SLOT.CarriedRight
 
-local lastShield
-local preferredLight
+local playerData = {}
 
 -- Had to find these by trial and error, actually in order now but idk which of the last two is which
 local weaponTypesTwoHanded = {
@@ -55,13 +54,13 @@ local weaponTypesTwoHanded = {
 }
 
 local function debugMessage(msg, _)
-	if not playerSettings:get('showDebug') then return end
+	if (not playerSettings:get('showDebug')) then return end
 
 	print("[" .. modName .. "]", string.format(msg, _))
 end
 
 local function message(msg, _)
-	if not userInterfaceSettings:get('showMessages') then return end
+	if (not userInterfaceSettings:get('showMessages')) then return end
 
 	ui.showMessage(string.format(msg, _))
 end
@@ -71,7 +70,7 @@ local function isTwoHanded(weapon)
 
 	local weaponType = Weapon.record(weapon).type
 
-	return weaponTypesTwoHanded[weaponType + 1]
+	return weaponTypesTwoHanded[weaponType + 1] -- Weapon types start at zero, Lua tables start at 1
 end
 
 local function getFirstLight()
@@ -88,27 +87,31 @@ local function equip(slot, object)
 end
 
 local function lightSwap(key)
-	if not playerSettings:get('modEnable') then return end
+	if (not playerSettings:get('modEnable')) then return end
 
-	if core.isWorldPaused() then return end
+	if (core.isWorldPaused()) then return end
 
-	if key.code ~= controlsSettings:get('lightHotkey') then return end
+	if (key.code ~= controlsSettings:get('lightHotkey')) then return end
 
 	local equipment = Actor.equipment(self)
+	local lastShield = playerData.lastShield
+	local preferredLight = playerData.preferredLight
 
 	-- If any light equipped
 	local equippedLight = equipment[carriedLeft]
-	if equippedLight and Light.objectIsInstance(equippedLight) then
+	if (equippedLight) and (Light.objectIsInstance(equippedLight)) then
 		-- Set/clear preferred light if alt is held when hotkey is pressed
-		if key.withAlt then
-			if preferredLight == equippedLight.recordId then
-				preferredLight = nil
+		if (key.withAlt) then
+			if (preferredLight == equippedLight.recordId) then
+				playerData.preferredLight = nil
 				message("Cleared preferred light.")
+
 				return
 			end
 
-			preferredLight = equippedLight.recordId
+			playerData.preferredLight = equippedLight.recordId
 			message("Set preferred light.")
+
 			return
 		end
 
@@ -116,7 +119,7 @@ local function lightSwap(key)
 		equip(carriedLeft, nil)
 
 		-- Equip stored shield if any
-		if lastShield and playerInventory:countOf(lastShield) >= 1 then
+		if (lastShield) and (playerInventory:countOf(lastShield) >= 1) then
 			equip(carriedLeft, lastShield)
 		end
 
@@ -125,19 +128,19 @@ local function lightSwap(key)
 
 	-- If no light Equipped
 	local firstLight = getFirstLight()
-	if firstLight then
+	if (firstLight) then
 		firstLight = firstLight.recordId
-		lastShield = nil
+		playerData.lastShield = nil
 
 		-- Store currently equipped shield if any
 		local equippedShield = equipment[carriedLeft]
-		if equippedShield and Armor.objectIsInstance(equippedShield) then
-			lastShield = equippedShield.recordId
-			debugMessage("Shield saved: " .. lastShield)
+		if (equippedShield) and (Armor.objectIsInstance(equippedShield)) then
+			playerData.lastShield = equippedShield.recordId
+			debugMessage("Shield saved: %s", lastShield)
 		end
 
 		-- Equip light
-		if preferredLight and playerInventory:countOf(preferredLight) >= 1 then
+		if (preferredLight) and (playerInventory:countOf(preferredLight) >= 1) then
 			equip(carriedLeft, preferredLight)
 			debugMessage("Preferred light equipped")
 		else
@@ -148,7 +151,7 @@ local function lightSwap(key)
 		if (gameplaySettings:get('lowerTwoHandedWeapon')) then
 			local equippedWeapon = equipment[carriedRight]
 
-			if isTwoHanded(equippedWeapon) then
+			if (isTwoHanded(equippedWeapon)) then
 				Actor.setStance(self, Actor.STANCE.Nothing)
 			end
 		end
@@ -160,25 +163,19 @@ local function lightSwap(key)
 end
 
 local function onSave()
-	return {
-		lastShield = lastShield,
-		preferredLight = preferredLight
-	}
+	return playerData
 end
 
-local function onLoad()
-	if not data then return end
+local function onLoad(data)
+	if (not data) then return end
 
-	lastShield = data.lastShield
-	preferredLight = data.preferredLight
-	debugMessage("Loaded saved shield: " .. lastShield)
-	debugMessage("Loaded preferred light: " .. preferredLight)
+	playerData = data
 end
 
 return {
 	engineHandlers = {
 		onKeyPress = lightSwap,
-		onLoad = onLoad,
 		onSave = onSave,
+		onLoad = onLoad,
 	}
 }
