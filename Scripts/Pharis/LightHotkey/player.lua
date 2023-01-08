@@ -1,6 +1,6 @@
 --[[
 
-Mod: Light Hotkey - OpenMW Lua
+Mod: Light Hotkey
 Author: Pharis
 
 --]]
@@ -19,21 +19,59 @@ local modVersion = modInfo.modVersion
 
 -- Settings
 local playerSettings = storage.playerSection('SettingsPlayer' .. modName)
+local userInterfaceSettings = storage.playerSection('SettingsPlayer' .. modName .. 'UI')
+local controlsSettings = storage.playerSection('SettingsPlayer' .. modName .. 'Controls')
+local gameplaySettings = storage.playerSection('SettingsPlayer' .. modName .. 'Gameplay')
 
 -- Other Variables
-local Player = types.Player
+local Actor = types.Actor
 local Armor = types.Armor
 local Light = types.Light
+local Weapon = types.Weapon
 
-local playerInventory = Player.inventory(self)
-local carriedLeft = Player.EQUIPMENT_SLOT.CarriedLeft
+local playerInventory = Actor.inventory(self)
+local carriedLeft = Actor.EQUIPMENT_SLOT.CarriedLeft
+local carriedRight = Actor.EQUIPMENT_SLOT.CarriedRight
+
 local lastShield
 local preferredLight
 
-local function debugMessage(msg)
+-- Had to find these by trial and error, actually in order now but idk which of the last two is which
+local weaponTypesTwoHanded = {
+	false, -- ShortBladeOneHand
+	false, -- LongBladeOneHand
+	true, -- LongBladeTwoHand
+	false, -- BluntOneHand
+	true, -- BluntTwoClose
+	true, -- BluntTwoWide
+	true, -- SpearTwoWide
+	false, -- AxeOneHand
+	true, -- AxeTwoHand
+	true, -- MarksmanBow
+	true, -- MarksmanCrossbow
+	false, -- MarksmanThrown
+	false, --
+	false, --
+}
+
+local function debugMessage(msg, _)
 	if not playerSettings:get('showDebug') then return end
 
 	print("[" .. modName .. "]", string.format(msg, _))
+end
+
+local function message(msg, _)
+	if not userInterfaceSettings:get('showMessages') then return end
+
+	ui.showMessage(string.format(msg, _))
+end
+
+local function isTwoHanded(weapon)
+	if (not weapon) then return false end -- Accounts for fists
+
+	local weaponType = Weapon.record(weapon).type
+
+	return weaponTypesTwoHanded[weaponType + 1]
 end
 
 local function getFirstLight()
@@ -43,33 +81,34 @@ local function getFirstLight()
 end
 
 local function equip(slot, object)
-    local playerEquipment = Player.equipment(self)
-    playerEquipment[slot] = object
-    Player.setEquipment(self, playerEquipment)
+    local equipment = Actor.equipment(self)
+
+    equipment[slot] = object
+    Actor.setEquipment(self, equipment)
 end
 
 local function lightSwap(key)
-	if key.code ~= playerSettings:get('lightHotkey') then return end
-
 	if not playerSettings:get('modEnable') then return end
 
 	if core.isWorldPaused() then return end
 
-	local playerEquipment = Player.equipment(self)
+	if key.code ~= controlsSettings:get('lightHotkey') then return end
+
+	local equipment = Actor.equipment(self)
 
 	-- If any light equipped
-	local equippedLight = playerEquipment[carriedLeft]
+	local equippedLight = equipment[carriedLeft]
 	if equippedLight and Light.objectIsInstance(equippedLight) then
 		-- Set/clear preferred light if alt is held when hotkey is pressed
 		if key.withAlt then
 			if preferredLight == equippedLight.recordId then
 				preferredLight = nil
-				ui.showMessage("Cleared preferred light.")
+				message("Cleared preferred light.")
 				return
 			end
 
 			preferredLight = equippedLight.recordId
-			ui.showMessage("Set preferred light.")
+			message("Set preferred light.")
 			return
 		end
 
@@ -91,7 +130,7 @@ local function lightSwap(key)
 		lastShield = nil
 
 		-- Store currently equipped shield if any
-		local equippedShield = playerEquipment[carriedLeft]
+		local equippedShield = equipment[carriedLeft]
 		if equippedShield and Armor.objectIsInstance(equippedShield) then
 			lastShield = equippedShield.recordId
 			debugMessage("Shield saved: " .. lastShield)
@@ -106,10 +145,18 @@ local function lightSwap(key)
 			debugMessage("No preferred light found, equipping first light")
 		end
 
+		if (gameplaySettings:get('lowerTwoHandedWeapon')) then
+			local equippedWeapon = equipment[carriedRight]
+
+			if isTwoHanded(equippedWeapon) then
+				Actor.setStance(self, Actor.STANCE.Nothing)
+			end
+		end
+
 		return
 	end
 
-	ui.showMessage("I'm not carrying any lights.")
+	message("I'm not carrying any lights.")
 end
 
 local function onSave()
@@ -120,7 +167,6 @@ local function onSave()
 end
 
 local function onLoad()
-	-- data can potentially be nil, throws error
 	if not data then return end
 
 	lastShield = data.lastShield

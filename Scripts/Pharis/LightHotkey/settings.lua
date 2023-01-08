@@ -1,6 +1,6 @@
 --[[
 
-Mod: Light Hotkey - OpenMW Lua
+Mod: Light Hotkey
 Author: Pharis
 
 --]]
@@ -19,11 +19,16 @@ local modVersion = modInfo.modVersion
 
 -- General settings description(s)
 local modEnableDescription = "To mod or not to mod."
-local logDebugDescription = "Press F10 to see logged messages in-game."
-local lightHotkeyDescription = "Choose which key equips a light; picking \'alt\' isn't recommended as preferred light is set with \'alt > hotkey\'."
+local logDebugDescription = "Press F10 to see logged messages in-game. Leave disabled for normal gameplay."
 
--- Other variables
-local playerSettings = storage.playerSection('SettingsPlayer' .. modName)
+-- UI settings description(s)
+local showMessagesDescription = "Show messages on screen when light is equipped and preferred light is set/cleared."
+
+-- Controls settings description(s)
+local lightHotkeyDescription = "Choose which key equips a light; picking 'alt' isn't recommended as preferred light is set with 'alt > hotkey'."
+
+-- Gameplay settings description(s)
+local lowerTwoHandedWeaponDescription = "Lowers two-handed weapon when light is equipped."
 
 local function setting(key, renderer, argument, name, description, default)
 	return {
@@ -48,11 +53,7 @@ local function initSettings()
 	I.Settings.registerRenderer('inputKeySelection', function(value, set)
 		local name = "No Key Set"
 		if value then
-			if value == input.KEY.Escape then
-				name = input.getKeyName(playerSettings:get('lightHotkey'))
-			else
-				name = input.getKeyName(value)
-			end
+			name = input.getKeyName(value)
 		end
 		return {
 			template = I.MWUI.templates.box,
@@ -88,13 +89,49 @@ end)
 	I.Settings.registerGroup {
 		key = 'SettingsPlayer' .. modName,
 		page = modName,
+		order = 0,
 		l10n = modName,
-		name = "General Settings",
+		name = "General",
 		permanentStorage = false,
 		settings = {
 			setting('modEnable', 'checkbox', {}, "Enable Mod", modEnableDescription, true),
 			setting('showDebug', 'checkbox', {}, "Log Debug Messages", logDebugDescription, false),
+		}
+	}
+
+	I.Settings.registerGroup {
+		key = 'SettingsPlayer' .. modName .. 'UI',
+		page = modName,
+		order = 1,
+		l10n = modName,
+		name = "UI",
+		permanentStorage = false,
+		settings = {
+			setting('showMessages', 'checkbox', {}, "Show Messages", showMessagesDescription, true),
+		}
+	}
+
+	I.Settings.registerGroup {
+		key = 'SettingsPlayer' .. modName .. 'Controls',
+		page = modName,
+		order = 2,
+		l10n = modName,
+		name = "Controls",
+		permanentStorage = false,
+		settings = {
 			setting('lightHotkey', 'inputKeySelection', {}, "Light Hotkey", lightHotkeyDescription, input.KEY.C),
+		}
+	}
+
+	I.Settings.registerGroup {
+		key = 'SettingsPlayer' .. modName .. 'Gameplay',
+		page = modName,
+		order = 3,
+		l10n = modName,
+		name = "Gameplay",
+		permanentStorage = false,
+		settings = {
+			setting('lowerTwoHandedWeapon', 'checkbox', {}, "Automatically Lower Two-Handed Weapon", lowerTwoHandedWeaponDescription, true),
 		}
 	}
 
