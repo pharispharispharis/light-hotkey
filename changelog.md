@@ -13,6 +13,6 @@
 \> Add the ability to change hotkey in-game.
 
 ### 1.3.0
-\> Add option to automatically lower two-handed weapon when light is equipped (on by default)
-\> Add option to turn of messages
+\> Add option to automatically lower two-handed weapon when light is equipped (on by default)<br>
+\> Add option to turn of messages<br>
 \> Changed default hotkey to 'v'
