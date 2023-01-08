@@ -14,5 +14,5 @@
 
 ### 1.3.0
 \> Add option to automatically lower two-handed weapon when light is equipped (on by default)<br>
-\> Add option to turn of messages<br>
+\> Add option to turn off messages<br>
 \> Changed default hotkey to 'v'
