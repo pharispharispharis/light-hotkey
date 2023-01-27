@@ -35,22 +35,14 @@ local carriedRight = Actor.EQUIPMENT_SLOT.CarriedRight
 
 local playerData = {}
 
--- Had to find these by trial and error, actually in order now but idk which of the last two is which
 local weaponTypesTwoHanded = {
-	false, -- ShortBladeOneHand
-	false, -- LongBladeOneHand
-	true, -- LongBladeTwoHand
-	false, -- BluntOneHand
-	true, -- BluntTwoClose
-	true, -- BluntTwoWide
-	true, -- SpearTwoWide
-	false, -- AxeOneHand
-	true, -- AxeTwoHand
-	true, -- MarksmanBow
-	true, -- MarksmanCrossbow
-	false, -- MarksmanThrown
-	false, --
-	false, --
+	[Weapon.TYPE.LongBladeTwoHand] = true, -- LongBladeTwoHand
+	[Weapon.TYPE.BluntTwoClose] = true, -- BluntTwoClose
+	[Weapon.TYPE.BluntTwoWide] = true, -- BluntTwoWide
+	[Weapon.TYPE.SpearTwoWide] = true, -- SpearTwoWide
+	[Weapon.TYPE.AxeTwoHand] = true, -- AxeTwoHand
+	[Weapon.TYPE.MarksmanBow] = true, -- SpearTwoWide
+	[Weapon.TYPE.MarksmanCrossbow] = true, -- AxeTwoHand
 }
 
 local function debugMessage(msg, _)
@@ -66,11 +58,13 @@ local function message(msg, _)
 end
 
 local function isTwoHanded(weapon)
-	if (not weapon) then return false end -- Accounts for fists
+	if (not weapon)
+	or (types.Lockpick.objectIsInstance(weapon))
+	or (types.Probe.objectIsInstance(weapon)) then return false end -- Accounts for fists, lockpicks, and probes
 
 	local weaponType = Weapon.record(weapon).type
 
-	return weaponTypesTwoHanded[weaponType + 1] -- Weapon types start at zero, Lua tables start at 1
+	return weaponTypesTwoHanded[weaponType]
 end
 
 local function getFirstLight()
