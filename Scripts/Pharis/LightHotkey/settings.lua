@@ -41,15 +41,7 @@ local function setting(key, renderer, argument, name, description, default)
 		default = default,
 	}
 end
---[[
-local function updateModDisabled()
-    local disabled = not playerSettings:get("modEnable")
-    I.Settings.updateRendererArgument("SettingsPlayer" .. modName, "showDebug", {disabled = disabled})
-    I.Settings.updateRendererArgument("SettingsPlayer" .. modName, "lightHotkey", {disabled = disabled})
-end
 
-playerSettings:subscribe(async:callback(updateModDisabled))
-]]
 local function initSettings()
 	I.Settings.registerRenderer("inputKeySelection", function(value, set)
 		local name = "No Key Set"
