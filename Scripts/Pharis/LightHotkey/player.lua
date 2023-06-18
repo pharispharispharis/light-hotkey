@@ -58,13 +58,9 @@ local function message(msg, _)
 end
 
 local function isTwoHanded(weapon)
-	if (not weapon)
-	or (types.Lockpick.objectIsInstance(weapon))
-	or (types.Probe.objectIsInstance(weapon)) then return false end -- Accounts for fists, lockpicks, and probes
-
-	local weaponType = Weapon.record(weapon).type
-
-	return weaponTypesTwoHanded[weaponType]
+	return (weapon)
+		and (Weapon.objectIsInstance(weapon))
+		and (weaponTypesTwoHanded[Weapon.record(weapon).type])
 end
 
 local function getFirstLight()
