@@ -98,7 +98,6 @@ end)
 		permanentStorage = false,
 		settings = {
 			setting('modEnable', 'checkbox', {}, "Enable Mod", modEnableDescription, true),
-			setting('showDebug', 'checkbox', {}, "Log Debug Messages", logDebugDescription, false),
 		}
 	}
 

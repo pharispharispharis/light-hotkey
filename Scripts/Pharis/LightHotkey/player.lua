@@ -45,12 +45,6 @@ local weaponTypesTwoHanded = {
 	[Weapon.TYPE.MarksmanCrossbow] = true, -- AxeTwoHand
 }
 
-local function debugMessage(msg, _)
-	if (not playerSettings:get('showDebug')) then return end
-
-	print("[" .. modName .. "]", string.format(msg, _))
-end
-
 local function message(msg, _)
 	if (not userInterfaceSettings:get('showMessages')) then return end
 
@@ -126,16 +120,13 @@ local function lightSwap(key)
 		local equippedShield = equipment[carriedLeft]
 		if (equippedShield) and (Armor.objectIsInstance(equippedShield)) then
 			playerData.lastShield = equippedShield.recordId
-			debugMessage("Shield saved: %s", lastShield)
 		end
 
 		-- Equip light
 		if (preferredLight) and (playerInventory:countOf(preferredLight) >= 1) then
 			equip(carriedLeft, preferredLight)
-			debugMessage("Preferred light equipped")
 		else
 			equip(carriedLeft, firstLight)
-			debugMessage("No preferred light found, equipping first light")
 		end
 
 		if (gameplaySettings:get('lowerTwoHandedWeapon')) then
