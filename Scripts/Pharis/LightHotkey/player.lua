@@ -5,23 +5,23 @@ Author: Pharis
 
 --]]
 
-local core = require('openmw.core')
-local input = require('openmw.input')
-local self = require('openmw.self')
-local storage = require('openmw.storage')
-local types = require('openmw.types')
-local ui = require('openmw.ui')
+local core = require("openmw.core")
+local input = require("openmw.input")
+local self = require("openmw.self")
+local storage = require("openmw.storage")
+local types = require("openmw.types")
+local ui = require("openmw.ui")
 
 -- Mod info
-local modInfo = require('Scripts.Pharis.LightHotkey.modInfo')
+local modInfo = require("Scripts.Pharis.LightHotkey.modInfo")
 local modName = modInfo.modName
 local modVersion = modInfo.modVersion
 
 -- Settings
-local playerSettings = storage.playerSection('SettingsPlayer' .. modName)
-local userInterfaceSettings = storage.playerSection('SettingsPlayer' .. modName .. 'UI')
-local controlsSettings = storage.playerSection('SettingsPlayer' .. modName .. 'Controls')
-local gameplaySettings = storage.playerSection('SettingsPlayer' .. modName .. 'Gameplay')
+local playerSettings = storage.playerSection("SettingsPlayer" .. modName)
+local userInterfaceSettings = storage.playerSection("SettingsPlayer" .. modName .. "UI")
+local controlsSettings = storage.playerSection("SettingsPlayer" .. modName .. "Controls")
+local gameplaySettings = storage.playerSection("SettingsPlayer" .. modName .. "Gameplay")
 
 -- Other Variables
 local Actor = types.Actor
@@ -46,7 +46,7 @@ local weaponTypesTwoHanded = {
 }
 
 local function message(msg, _)
-	if (not userInterfaceSettings:get('showMessages')) then return end
+	if (not userInterfaceSettings:get("showMessages")) then return end
 
 	ui.showMessage(string.format(msg, _))
 end
@@ -71,11 +71,11 @@ local function equip(slot, object)
 end
 
 local function lightSwap(key)
-	if (not playerSettings:get('modEnable')) then return end
+	if (not playerSettings:get("modEnable")) then return end
 
 	if (core.isWorldPaused()) then return end
 
-	if (key.code ~= controlsSettings:get('lightHotkey')) then return end
+	if (key.code ~= controlsSettings:get("lightHotkey")) then return end
 
 	local equipment = Actor.equipment(self)
 	local lastShield = playerData.lastShield
@@ -129,7 +129,7 @@ local function lightSwap(key)
 			equip(carriedLeft, firstLight)
 		end
 
-		if (gameplaySettings:get('lowerTwoHandedWeapon')) then
+		if (gameplaySettings:get("lowerTwoHandedWeapon")) then
 			local equippedWeapon = equipment[carriedRight]
 
 			if (isTwoHanded(equippedWeapon)) then
