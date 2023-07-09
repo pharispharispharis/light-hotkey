@@ -6,6 +6,6 @@ Author: Pharis
 --]]
 
 return {
-	modName = "LightHotkey",
-	modVersion = "1.3.0"
+	name = "LightHotkey",
+	version = "1.3.0"
 }

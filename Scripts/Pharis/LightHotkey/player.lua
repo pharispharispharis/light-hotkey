@@ -13,13 +13,11 @@ local types = require("openmw.types")
 local ui = require("openmw.ui")
 
 local modInfo = require("Scripts.Pharis.LightHotkey.modInfo")
-local modName = modInfo.modName
-local modVersion = modInfo.modVersion
 
-local playerSettings = storage.playerSection("SettingsPlayer" .. modName)
-local userInterfaceSettings = storage.playerSection("SettingsPlayer" .. modName .. "UI")
-local controlsSettings = storage.playerSection("SettingsPlayer" .. modName .. "Controls")
-local gameplaySettings = storage.playerSection("SettingsPlayer" .. modName .. "Gameplay")
+local playerSettings = storage.playerSection("SettingsPlayer" .. modInfo.name)
+local userInterfaceSettings = storage.playerSection("SettingsPlayer" .. modInfo.name .. "UI")
+local controlsSettings = storage.playerSection("SettingsPlayer" .. modInfo.name .. "Controls")
+local gameplaySettings = storage.playerSection("SettingsPlayer" .. modInfo.name .. "Gameplay")
 
 local Actor = types.Actor
 local Armor = types.Armor

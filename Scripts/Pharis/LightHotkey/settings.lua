@@ -11,13 +11,10 @@ local I = require("openmw.interfaces")
 local input = require("openmw.input")
 local ui = require("openmw.ui")
 
--- Mod info
 local modInfo = require("Scripts.Pharis.LightHotkey.modInfo")
-local modName = modInfo.modName
-local modVersion = modInfo.modVersion
 
 -- Page description(s)
-local pageDescription = "By Pharis\nv" .. modVersion .. "\n\nEquip light with hotkey; automatically re-equip shield when light is unequipped."
+local pageDescription = "By Pharis\nv" .. modInfo.version .. "\n\nEquip light with hotkey; automatically re-equip shield when light is unequipped."
 
 -- General settings description(s)
 local modEnableDescription = "To mod or not to mod."
@@ -74,17 +71,17 @@ local function initSettings()
 end)
 
 	I.Settings.registerPage {
-		key = modName,
-		l10n = modName,
+		key = modInfo.name,
+		l10n = modInfo.name,
 		name = "Light Hotkey",
 		description = pageDescription
 	}
 
 	I.Settings.registerGroup {
-		key = "SettingsPlayer" .. modName,
-		page = modName,
+		key = "SettingsPlayer" .. modInfo.name,
+		page = modInfo.name,
 		order = 0,
-		l10n = modName,
+		l10n = modInfo.name,
 		name = "General",
 		permanentStorage = false,
 		settings = {
@@ -93,10 +90,10 @@ end)
 	}
 
 	I.Settings.registerGroup {
-		key = "SettingsPlayer" .. modName .. "UI",
-		page = modName,
+		key = "SettingsPlayer" .. modInfo.name .. "UI",
+		page = modInfo.name,
 		order = 1,
-		l10n = modName,
+		l10n = modInfo.name,
 		name = "UI",
 		permanentStorage = false,
 		settings = {
@@ -105,10 +102,10 @@ end)
 	}
 
 	I.Settings.registerGroup {
-		key = "SettingsPlayer" .. modName .. "Controls",
-		page = modName,
+		key = "SettingsPlayer" .. modInfo.name .. "Controls",
+		page = modInfo.name,
 		order = 2,
-		l10n = modName,
+		l10n = modInfo.name,
 		name = "Controls",
 		permanentStorage = false,
 		settings = {
@@ -117,10 +114,10 @@ end)
 	}
 
 	I.Settings.registerGroup {
-		key = "SettingsPlayer" .. modName .. "Gameplay",
-		page = modName,
+		key = "SettingsPlayer" .. modInfo.name .. "Gameplay",
+		page = modInfo.name,
 		order = 3,
-		l10n = modName,
+		l10n = modInfo.name,
 		name = "Gameplay",
 		permanentStorage = false,
 		settings = {
@@ -128,7 +125,7 @@ end)
 		}
 	}
 
-	print("[" .. modName .. "] Initialized v" .. modVersion)
+	print("[" .. modInfo.name .. "] Initialized v" .. modInfo.version)
 end
 
 return {
