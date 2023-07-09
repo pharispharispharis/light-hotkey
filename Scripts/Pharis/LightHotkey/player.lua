@@ -6,7 +6,6 @@ Author: Pharis
 --]]
 
 local core = require("openmw.core")
-local input = require("openmw.input")
 local self = require("openmw.self")
 local storage = require("openmw.storage")
 local types = require("openmw.types")
