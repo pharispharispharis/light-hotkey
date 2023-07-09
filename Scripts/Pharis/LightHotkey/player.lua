@@ -101,7 +101,6 @@ local function onKeyPress(key)
 	-- If no light Equipped
 	local firstLight = getFirstLight()
 	if (firstLight) then
-		firstLight = firstLight
 		lastShield = nil
 
 		-- Store currently equipped shield if any
