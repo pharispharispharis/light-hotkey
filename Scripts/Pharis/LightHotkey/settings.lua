@@ -13,19 +13,10 @@ local ui = require("openmw.ui")
 
 local modInfo = require("Scripts.Pharis.LightHotkey.modInfo")
 
--- Page description(s)
 local pageDescription = "By Pharis\nv" .. modInfo.version .. "\n\nEquip light with hotkey; automatically re-equip shield when light is unequipped."
-
--- General settings description(s)
 local modEnableDescription = "To mod or not to mod."
-
--- UI settings description(s)
 local showMessagesDescription = "Show messages on screen when light is equipped and preferred light is set/cleared."
-
--- Controls settings description(s)
 local lightHotkeyDescription = "Choose which key equips a light; picking alt isn't recommended as preferred light is set with alt > hotkey."
-
--- Gameplay settings description(s)
 local lowerTwoHandedWeaponDescription = "Lowers two-handed weapon when light is equipped."
 
 local function setting(key, renderer, argument, name, description, default)
