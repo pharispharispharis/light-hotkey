@@ -41,7 +41,6 @@ local weaponTypesTwoHanded = {
 
 local function message(msg, _)
 	if (not userInterfaceSettings:get("showMessages")) then return end
-
 	ui.showMessage(string.format(msg, _))
 end
 
@@ -59,7 +58,6 @@ end
 
 local function equip(slot, object)
     local equipment = Actor.equipment(self)
-
     equipment[slot] = object
     Actor.setEquipment(self, equipment)
 end
@@ -81,13 +79,11 @@ local function lightSwap(key)
 			if (preferredLight == equippedLight.recordId) then
 				playerData.preferredLight = nil
 				message("Cleared preferred light.")
-
 				return
 			end
 
 			playerData.preferredLight = equippedLight.recordId
 			message("Set preferred light.")
-
 			return
 		end
 
@@ -123,7 +119,6 @@ local function lightSwap(key)
 
 		if (gameplaySettings:get("lowerTwoHandedWeapon")) then
 			local equippedWeapon = equipment[carriedRight]
-
 			if (isTwoHanded(equippedWeapon)) then
 				Actor.setStance(self, Actor.STANCE.Nothing)
 			end
@@ -141,7 +136,6 @@ end
 
 local function onLoad(data)
 	if (not data) then return end
-
 	playerData = data
 end
 
