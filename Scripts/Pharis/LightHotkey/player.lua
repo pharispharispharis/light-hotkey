@@ -51,8 +51,8 @@ local function isTwoHanded(weapon)
 end
 
 local function getFirstLight()
-	for _, object in ipairs(playerInventory:getAll(Light)) do
-		return object
+	for _, light in ipairs(playerInventory:getAll(Light)) do
+		if (Light.record(light).isCarriable) then return light end
 	end
 end
 
