@@ -6,6 +6,7 @@ Author: Pharis
 --]]
 
 local async = require("openmw.async")
+local core = require("openmw.core")
 local I = require("openmw.interfaces")
 local input = require("openmw.input")
 local ui = require("openmw.ui")
@@ -105,16 +106,19 @@ I.Settings.registerGroup {
 	}
 }
 
-I.Settings.registerGroup {
-	key = "SettingsPlayer" .. modInfo.name .. "Gameplay",
-	page = modInfo.name,
-	order = 3,
-	l10n = modInfo.name,
-	name = "Gameplay",
-	permanentStorage = false,
-	settings = {
-		setting("lowerTwoHandedWeapon", "checkbox", {}, "Automatically Lower Two-Handed Weapon", lowerTwoHandedWeaponDescription, true),
+-- No need to even show this setting in 0.48
+if (core.API_REVISION >= 31) then
+	I.Settings.registerGroup {
+		key = "SettingsPlayer" .. modInfo.name .. "Gameplay",
+		page = modInfo.name,
+		order = 3,
+		l10n = modInfo.name,
+		name = "Gameplay",
+		permanentStorage = false,
+		settings = {
+			setting("lowerTwoHandedWeapon", "checkbox", {}, "Automatically Lower Two-Handed Weapon", lowerTwoHandedWeaponDescription, true),
+		}
 	}
-}
+end
 
 print("[" .. modInfo.name .. "] Initialized v" .. modInfo.version)

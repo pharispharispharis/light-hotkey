@@ -52,6 +52,7 @@ end
 -- TODO: Take into account remaining duration (not possible atm)
 local function getFirstLight()
 	for _, light in ipairs(Actor.inventory(self):getAll(Light)) do
+		if (Light.record == nil) then return light end -- Not in 0.48, no API revision update on that MR
 		if (Light.record(light).isCarriable) then return light end
 	end
 end
