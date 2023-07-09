@@ -39,8 +39,9 @@ local function setting(key, renderer, argument, name, description, default)
 	}
 end
 
-local function initSettings()
-	I.Settings.registerRenderer("inputKeySelection", function(value, set)
+I.Settings.registerRenderer(
+	"inputKeySelection",
+	function(value, set)
 		local name = "No Key Set"
 		if value then
 			name = input.getKeyName(value)
@@ -68,68 +69,62 @@ local function initSettings()
 				},
 			},
 		}
-end)
+	end
+)
 
-	I.Settings.registerPage {
-		key = modInfo.name,
-		l10n = modInfo.name,
-		name = "Light Hotkey",
-		description = pageDescription
-	}
+I.Settings.registerPage {
+	key = modInfo.name,
+	l10n = modInfo.name,
+	name = "Light Hotkey",
+	description = pageDescription
+}
 
-	I.Settings.registerGroup {
-		key = "SettingsPlayer" .. modInfo.name,
-		page = modInfo.name,
-		order = 0,
-		l10n = modInfo.name,
-		name = "General",
-		permanentStorage = false,
-		settings = {
-			setting("modEnable", "checkbox", {}, "Enable Mod", modEnableDescription, true),
-		}
-	}
-
-	I.Settings.registerGroup {
-		key = "SettingsPlayer" .. modInfo.name .. "UI",
-		page = modInfo.name,
-		order = 1,
-		l10n = modInfo.name,
-		name = "UI",
-		permanentStorage = false,
-		settings = {
-			setting("showMessages", "checkbox", {}, "Show Messages", showMessagesDescription, true),
-		}
-	}
-
-	I.Settings.registerGroup {
-		key = "SettingsPlayer" .. modInfo.name .. "Controls",
-		page = modInfo.name,
-		order = 2,
-		l10n = modInfo.name,
-		name = "Controls",
-		permanentStorage = false,
-		settings = {
-			setting("lightHotkey", "inputKeySelection", {}, "Light Hotkey", lightHotkeyDescription, input.KEY.V),
-		}
-	}
-
-	I.Settings.registerGroup {
-		key = "SettingsPlayer" .. modInfo.name .. "Gameplay",
-		page = modInfo.name,
-		order = 3,
-		l10n = modInfo.name,
-		name = "Gameplay",
-		permanentStorage = false,
-		settings = {
-			setting("lowerTwoHandedWeapon", "checkbox", {}, "Automatically Lower Two-Handed Weapon", lowerTwoHandedWeaponDescription, true),
-		}
-	}
-
-	print("[" .. modInfo.name .. "] Initialized v" .. modInfo.version)
-end
-
-return {
-	engineHandlers = {
-		onActive = initSettings,
+I.Settings.registerGroup {
+	key = "SettingsPlayer" .. modInfo.name,
+	page = modInfo.name,
+	order = 0,
+	l10n = modInfo.name,
+	name = "General",
+	permanentStorage = false,
+	settings = {
+		setting("modEnable", "checkbox", {}, "Enable Mod", modEnableDescription, true),
 	}
 }
+
+I.Settings.registerGroup {
+	key = "SettingsPlayer" .. modInfo.name .. "UI",
+	page = modInfo.name,
+	order = 1,
+	l10n = modInfo.name,
+	name = "UI",
+	permanentStorage = false,
+	settings = {
+		setting("showMessages", "checkbox", {}, "Show Messages", showMessagesDescription, true),
+	}
+}
+
+I.Settings.registerGroup {
+	key = "SettingsPlayer" .. modInfo.name .. "Controls",
+	page = modInfo.name,
+	order = 2,
+	l10n = modInfo.name,
+	name = "Controls",
+	permanentStorage = false,
+	settings = {
+		setting("lightHotkey", "inputKeySelection", {}, "Light Hotkey", lightHotkeyDescription, input.KEY.V),
+	}
+}
+
+I.Settings.registerGroup {
+	key = "SettingsPlayer" .. modInfo.name .. "Gameplay",
+	page = modInfo.name,
+	order = 3,
+	l10n = modInfo.name,
+	name = "Gameplay",
+	permanentStorage = false,
+	settings = {
+		setting("lowerTwoHandedWeapon", "checkbox", {}, "Automatically Lower Two-Handed Weapon", lowerTwoHandedWeaponDescription, true),
+	}
+}
+
+print("[" .. modInfo.name .. "] Initialized v" .. modInfo.version)
