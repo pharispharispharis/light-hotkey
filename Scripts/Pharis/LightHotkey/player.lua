@@ -24,8 +24,8 @@ local Light = types.Light
 local Weapon = types.Weapon
 
 local playerInventory = Actor.inventory(self)
-local carriedLeft = Actor.EQUIPMENT_SLOT.CarriedLeft
-local carriedRight = Actor.EQUIPMENT_SLOT.CarriedRight
+local SLOT_CARRIED_LEFT = Actor.EQUIPMENT_SLOT.CarriedLeft
+local SLOT_CARRIED_RIGHT = Actor.EQUIPMENT_SLOT.CarriedRight
 
 local lastShield
 local preferredLight
@@ -72,7 +72,7 @@ local function onKeyPress(key)
 	local equipment = Actor.equipment(self)
 
 	-- If any light equipped
-	local equippedLight = equipment[carriedLeft]
+	local equippedLight = equipment[SLOT_CARRIED_LEFT]
 	if (equippedLight) and (Light.objectIsInstance(equippedLight)) then
 		-- Set/clear preferred light if alt is held when hotkey is pressed
 		if (key.withAlt) then
@@ -88,11 +88,11 @@ local function onKeyPress(key)
 		end
 
 		-- Unequip light
-		equip(carriedLeft, nil)
+		equip(SLOT_CARRIED_LEFT, nil)
 
 		-- Equip stored shield if any
 		if (lastShield) and (lastShield.count > 0) then
-			equip(carriedLeft, lastShield)
+			equip(SLOT_CARRIED_LEFT, lastShield)
 		end
 
 		return
@@ -105,21 +105,21 @@ local function onKeyPress(key)
 		lastShield = nil
 
 		-- Store currently equipped shield if any
-		local equippedShield = equipment[carriedLeft]
-		if (equippedShield) and (Armor.objectIsInstance(equippedShield)) then
-			lastShield = equippedShield
+		local carriedLeft = equipment[SLOT_CARRIED_LEFT]
+		if (carriedLeft) and (Armor.objectIsInstance(carriedLeft)) then
+			lastShield = carriedLeft
 		end
 
 		-- Equip light
 		if (preferredLight) and (preferredLight.count > 0) then
-			equip(carriedLeft, preferredLight)
+			equip(SLOT_CARRIED_LEFT, preferredLight)
 		else
-			equip(carriedLeft, firstLight)
+			equip(SLOT_CARRIED_LEFT, firstLight)
 		end
 
 		if (gameplaySettings:get("lowerTwoHandedWeapon")) then
-			local equippedWeapon = equipment[carriedRight]
-			if (isTwoHanded(equippedWeapon)) then
+			local carriedRight = equipment[SLOT_CARRIED_RIGHT]
+			if (isTwoHanded(carriedRight)) then
 				Actor.setStance(self, Actor.STANCE.Nothing)
 			end
 		end
