@@ -63,7 +63,7 @@ local function equip(slot, object)
     Actor.setEquipment(self, equipment)
 end
 
-local function lightSwap(key)
+local function onKeyPress(key)
 	if (not playerSettings:get("modEnable"))
 		or (key.code ~= controlsSettings:get("lightHotkey"))
 		or (core.isWorldPaused()) then return end
@@ -144,7 +144,7 @@ end
 
 return {
 	engineHandlers = {
-		onKeyPress = lightSwap,
+		onKeyPress = onKeyPress,
 		onSave = onSave,
 		onLoad = onLoad,
 	}
