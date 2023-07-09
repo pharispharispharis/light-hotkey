@@ -51,6 +51,7 @@ local function isTwoHanded(weapon)
 		and (weaponTypesTwoHanded[Weapon.record(weapon).type])
 end
 
+-- TODO: Take into account remaining duration (not possible atm)
 local function getFirstLight()
 	for _, light in ipairs(playerInventory:getAll(Light)) do
 		if (Light.record(light).isCarriable) then return light end
