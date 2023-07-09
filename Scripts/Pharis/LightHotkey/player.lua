@@ -75,13 +75,13 @@ local function onKeyPress(key)
 	if (equippedLight) and (Light.objectIsInstance(equippedLight)) then
 		-- Set/clear preferred light if alt is held when hotkey is pressed
 		if (key.withAlt) then
-			if (preferredLight == equippedLight.recordId) then
+			if (preferredLight == equippedLight) then
 				preferredLight = nil
 				message("Cleared preferred light.")
 				return
 			end
 
-			preferredLight = equippedLight.recordId
+			preferredLight = equippedLight
 			message("Set preferred light.")
 			return
 		end
@@ -90,7 +90,7 @@ local function onKeyPress(key)
 		equip(carriedLeft, nil)
 
 		-- Equip stored shield if any
-		if (lastShield) and (playerInventory:countOf(lastShield) >= 1) then
+		if (lastShield) and (lastShield.count > 0) then
 			equip(carriedLeft, lastShield)
 		end
 
@@ -100,17 +100,17 @@ local function onKeyPress(key)
 	-- If no light Equipped
 	local firstLight = getFirstLight()
 	if (firstLight) then
-		firstLight = firstLight.recordId
+		firstLight = firstLight
 		lastShield = nil
 
 		-- Store currently equipped shield if any
 		local equippedShield = equipment[carriedLeft]
 		if (equippedShield) and (Armor.objectIsInstance(equippedShield)) then
-			lastShield = equippedShield.recordId
+			lastShield = equippedShield
 		end
 
 		-- Equip light
-		if (preferredLight) and (playerInventory:countOf(preferredLight) >= 1) then
+		if (preferredLight) and (preferredLight.count > 0) then
 			equip(carriedLeft, preferredLight)
 		else
 			equip(carriedLeft, firstLight)
@@ -129,17 +129,24 @@ local function onKeyPress(key)
 	message("I'm not carrying any lights.")
 end
 
+-- Temporary hack because saved objects can't be used after load for some reason
+local function findObjectMatch(objectString)
+	for _, object in ipairs(Actor.inventory(self):getAll()) do
+		if (tostring(object) == objectString) then return object end
+	end
+end
+
 local function onSave()
 	return {
-		lastShield = lastShield,
-		preferredLight = preferredLight
+		lastShield = tostring(lastShield),
+		preferredLight = tostring(preferredLight)
 	}
 end
 
 local function onLoad(data)
 	if (not data) then return end
-	lastShield = data.lastShield
-	preferredLight = data.preferredLight
+	lastShield = findObjectMatch(data.lastShield)
+	preferredLight = findObjectMatch(data.preferredLight)
 end
 
 return {
