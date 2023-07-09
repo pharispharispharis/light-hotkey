@@ -12,18 +12,15 @@ local storage = require("openmw.storage")
 local types = require("openmw.types")
 local ui = require("openmw.ui")
 
--- Mod info
 local modInfo = require("Scripts.Pharis.LightHotkey.modInfo")
 local modName = modInfo.modName
 local modVersion = modInfo.modVersion
 
--- Settings
 local playerSettings = storage.playerSection("SettingsPlayer" .. modName)
 local userInterfaceSettings = storage.playerSection("SettingsPlayer" .. modName .. "UI")
 local controlsSettings = storage.playerSection("SettingsPlayer" .. modName .. "Controls")
 local gameplaySettings = storage.playerSection("SettingsPlayer" .. modName .. "Gameplay")
 
--- Other Variables
 local Actor = types.Actor
 local Armor = types.Armor
 local Light = types.Light
@@ -36,13 +33,13 @@ local carriedRight = Actor.EQUIPMENT_SLOT.CarriedRight
 local playerData = {}
 
 local weaponTypesTwoHanded = {
-	[Weapon.TYPE.LongBladeTwoHand] = true, -- LongBladeTwoHand
-	[Weapon.TYPE.BluntTwoClose] = true, -- BluntTwoClose
-	[Weapon.TYPE.BluntTwoWide] = true, -- BluntTwoWide
-	[Weapon.TYPE.SpearTwoWide] = true, -- SpearTwoWide
-	[Weapon.TYPE.AxeTwoHand] = true, -- AxeTwoHand
-	[Weapon.TYPE.MarksmanBow] = true, -- SpearTwoWide
-	[Weapon.TYPE.MarksmanCrossbow] = true, -- AxeTwoHand
+	[Weapon.TYPE.LongBladeTwoHand] = true,
+	[Weapon.TYPE.BluntTwoClose] = true,
+	[Weapon.TYPE.BluntTwoWide] = true,
+	[Weapon.TYPE.SpearTwoWide] = true,
+	[Weapon.TYPE.AxeTwoHand] = true,
+	[Weapon.TYPE.MarksmanBow] = true,
+	[Weapon.TYPE.MarksmanCrossbow] = true,
 }
 
 local function message(msg, _)
