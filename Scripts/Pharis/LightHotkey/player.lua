@@ -27,7 +27,8 @@ local playerInventory = Actor.inventory(self)
 local carriedLeft = Actor.EQUIPMENT_SLOT.CarriedLeft
 local carriedRight = Actor.EQUIPMENT_SLOT.CarriedRight
 
-local playerData = {}
+local lastShield
+local preferredLight
 
 local weaponTypesTwoHanded = {
 	[Weapon.TYPE.LongBladeTwoHand] = true,
@@ -68,8 +69,6 @@ local function lightSwap(key)
 		or (core.isWorldPaused()) then return end
 
 	local equipment = Actor.equipment(self)
-	local lastShield = playerData.lastShield
-	local preferredLight = playerData.preferredLight
 
 	-- If any light equipped
 	local equippedLight = equipment[carriedLeft]
@@ -77,12 +76,12 @@ local function lightSwap(key)
 		-- Set/clear preferred light if alt is held when hotkey is pressed
 		if (key.withAlt) then
 			if (preferredLight == equippedLight.recordId) then
-				playerData.preferredLight = nil
+				preferredLight = nil
 				message("Cleared preferred light.")
 				return
 			end
 
-			playerData.preferredLight = equippedLight.recordId
+			preferredLight = equippedLight.recordId
 			message("Set preferred light.")
 			return
 		end
@@ -102,12 +101,12 @@ local function lightSwap(key)
 	local firstLight = getFirstLight()
 	if (firstLight) then
 		firstLight = firstLight.recordId
-		playerData.lastShield = nil
+		lastShield = nil
 
 		-- Store currently equipped shield if any
 		local equippedShield = equipment[carriedLeft]
 		if (equippedShield) and (Armor.objectIsInstance(equippedShield)) then
-			playerData.lastShield = equippedShield.recordId
+			lastShield = equippedShield.recordId
 		end
 
 		-- Equip light
@@ -131,12 +130,16 @@ local function lightSwap(key)
 end
 
 local function onSave()
-	return playerData
+	return {
+		lastShield = lastShield,
+		preferredLight = preferredLight
+	}
 end
 
 local function onLoad(data)
 	if (not data) then return end
-	playerData = data
+	lastShield = data.lastShield
+	preferredLight = data.preferredLight
 end
 
 return {
