@@ -1,5 +1,9 @@
 ## Version History
 
+### 1.4.0
+* Save objects directly instead of record id (fixes issue with custom enchanted items)
+* Hide automatic weapon lowering from settings on OpenMW 0.48 as it's incompatible
+
 ### 1.3.0
 * Add option to automatically lower two-handed weapon when light is equipped (on by default).
 * Add option to turn off messages.
