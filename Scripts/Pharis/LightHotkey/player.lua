@@ -71,11 +71,9 @@ local function equip(slot, object)
 end
 
 local function lightSwap(key)
-	if (not playerSettings:get("modEnable")) then return end
-
-	if (core.isWorldPaused()) then return end
-
-	if (key.code ~= controlsSettings:get("lightHotkey")) then return end
+	if (not playerSettings:get("modEnable"))
+		or (key.code ~= controlsSettings:get("lightHotkey"))
+		or (core.isWorldPaused()) then return end
 
 	local equipment = Actor.equipment(self)
 	local lastShield = playerData.lastShield
