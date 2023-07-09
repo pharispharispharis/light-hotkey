@@ -6,7 +6,6 @@ Author: Pharis
 --]]
 
 local async = require("openmw.async")
-local core = require("openmw.core")
 local I = require("openmw.interfaces")
 local input = require("openmw.input")
 local ui = require("openmw.ui")
