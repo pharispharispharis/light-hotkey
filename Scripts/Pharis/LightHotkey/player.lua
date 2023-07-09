@@ -23,7 +23,6 @@ local Armor = types.Armor
 local Light = types.Light
 local Weapon = types.Weapon
 
-local playerInventory = Actor.inventory(self)
 local SLOT_CARRIED_LEFT = Actor.EQUIPMENT_SLOT.CarriedLeft
 local SLOT_CARRIED_RIGHT = Actor.EQUIPMENT_SLOT.CarriedRight
 
@@ -41,8 +40,7 @@ local weaponTypesTwoHanded = {
 }
 
 local function message(msg, _)
-	if (not userInterfaceSettings:get("showMessages")) then return end
-	ui.showMessage(string.format(msg, _))
+	if (userInterfaceSettings:get("showMessages")) then ui.showMessage(msg) end
 end
 
 local function isTwoHanded(weapon)
@@ -53,7 +51,7 @@ end
 
 -- TODO: Take into account remaining duration (not possible atm)
 local function getFirstLight()
-	for _, light in ipairs(playerInventory:getAll(Light)) do
+	for _, light in ipairs(Actor.inventory(self):getAll(Light)) do
 		if (Light.record(light).isCarriable) then return light end
 	end
 end
@@ -72,65 +70,41 @@ local function onKeyPress(key)
 	local equipment = Actor.equipment(self)
 
 	-- If any light equipped
-	local equippedLight = equipment[SLOT_CARRIED_LEFT]
-	if (equippedLight) and (Light.objectIsInstance(equippedLight)) then
+	local carriedRight = equipment[SLOT_CARRIED_LEFT]
+	if (carriedRight) and (Light.objectIsInstance(carriedRight)) then
 		-- Set/clear preferred light if alt is held when hotkey is pressed
 		if (key.withAlt) then
-			if (preferredLight == equippedLight) then
-				preferredLight = nil
-				message("Cleared preferred light.")
-				return
-			end
-
-			preferredLight = equippedLight
-			message("Set preferred light.")
+			preferredLight = (preferredLight ~= carriedRight) and carriedRight or nil
+			message((preferredLight) and "Set preferred light." or "Cleared preferred light.")
 			return
 		end
 
-		-- Unequip light
-		equip(SLOT_CARRIED_LEFT, nil)
-
-		-- Equip stored shield if any
-		if (lastShield) and (lastShield.count > 0) then
-			equip(SLOT_CARRIED_LEFT, lastShield)
-		end
-
+		-- Either un-equip light or switch to last shield
+		equip(SLOT_CARRIED_LEFT, (lastShield and lastShield.count > 0) and lastShield or nil)
 		return
 	end
 
 	-- If no light Equipped
 	local firstLight = getFirstLight()
 	if (firstLight) then
-		lastShield = nil
-
 		-- Store currently equipped shield if any
 		local carriedLeft = equipment[SLOT_CARRIED_LEFT]
-		if (carriedLeft) and (Armor.objectIsInstance(carriedLeft)) then
-			lastShield = carriedLeft
-		end
+		lastShield = (carriedLeft and Armor.objectIsInstance(carriedLeft)) and carriedLeft or nil
 
 		-- Equip light
-		if (preferredLight) and (preferredLight.count > 0) then
-			equip(SLOT_CARRIED_LEFT, preferredLight)
-		else
-			equip(SLOT_CARRIED_LEFT, firstLight)
-		end
+		equip(SLOT_CARRIED_LEFT, (preferredLight and preferredLight.count > 0) and preferredLight or firstLight)
 
 		if (gameplaySettings:get("lowerTwoHandedWeapon")) then
 			local carriedRight = equipment[SLOT_CARRIED_RIGHT]
-			if (isTwoHanded(carriedRight)) then
-				Actor.setStance(self, Actor.STANCE.Nothing)
-			end
+			if (isTwoHanded(carriedRight)) then Actor.setStance(self, Actor.STANCE.Nothing) end
 		end
-
-		return
+	else
+		message("I'm not carrying any lights.")
 	end
-
-	message("I'm not carrying any lights.")
 end
 
 -- Temporary hack because saved objects can't be used after load for some reason
-local function findObjectMatch(objectString)
+local function findObjectStringMatch(objectString)
 	for _, object in ipairs(Actor.inventory(self):getAll()) do
 		if (tostring(object) == objectString) then return object end
 	end
@@ -145,8 +119,8 @@ end
 
 local function onLoad(data)
 	if (not data) then return end
-	lastShield = findObjectMatch(data.lastShield)
-	preferredLight = findObjectMatch(data.preferredLight)
+	lastShield = findObjectStringMatch(data.lastShield)
+	preferredLight = findObjectStringMatch(data.preferredLight)
 end
 
 return {
