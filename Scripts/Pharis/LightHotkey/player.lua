@@ -71,11 +71,11 @@ local function onKeyPress(key)
 	local equipment = Actor.equipment(self)
 
 	-- If any light equipped
-	local carriedRight = equipment[SLOT_CARRIED_LEFT]
-	if (carriedRight) and (Light.objectIsInstance(carriedRight)) then
+	local carriedLeft = equipment[SLOT_CARRIED_LEFT]
+	if (carriedLeft) and (Light.objectIsInstance(carriedLeft)) then
 		-- Set/clear preferred light if alt is held when hotkey is pressed
 		if (key.withAlt) then
-			preferredLight = (preferredLight ~= carriedRight) and carriedRight or nil
+			preferredLight = (preferredLight ~= carriedLeft) and carriedLeft or nil
 			message((preferredLight) and "Set preferred light." or "Cleared preferred light.")
 			return
 		end
@@ -89,7 +89,6 @@ local function onKeyPress(key)
 	local firstLight = getFirstLight()
 	if (firstLight) then
 		-- Store currently equipped shield if any
-		local carriedLeft = equipment[SLOT_CARRIED_LEFT]
 		lastShield = (carriedLeft and Armor.objectIsInstance(carriedLeft)) and carriedLeft or nil
 
 		-- Equip light
