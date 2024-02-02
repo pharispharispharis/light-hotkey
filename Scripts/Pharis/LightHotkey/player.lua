@@ -29,7 +29,7 @@ local SLOT_CARRIED_RIGHT = Actor.EQUIPMENT_SLOT.CarriedRight
 local lastShield
 local preferredLight
 
-local weaponTypesTwoHanded = {
+local WEAPON_TYPES_TWO_HANDED = {
 	[Weapon.TYPE.LongBladeTwoHand] = true,
 	[Weapon.TYPE.BluntTwoClose] = true,
 	[Weapon.TYPE.BluntTwoWide] = true,
@@ -46,7 +46,7 @@ end
 local function isTwoHanded(weapon)
 	return (weapon)
 		and (Weapon.objectIsInstance(weapon))
-		and (weaponTypesTwoHanded[Weapon.record(weapon).type])
+		and (WEAPON_TYPES_TWO_HANDED[Weapon.record(weapon).type])
 end
 
 -- TODO: Take into account remaining duration (not possible atm)
