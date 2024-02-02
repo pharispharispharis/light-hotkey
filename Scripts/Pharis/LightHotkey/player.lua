@@ -5,6 +5,7 @@ Author: Pharis
 
 --]]
 
+local aux_util = require("openmw_aux.util")
 local core = require("openmw.core")
 local self = require("openmw.self")
 local storage = require("openmw.storage")
@@ -20,6 +21,7 @@ local gameplaySettings = storage.playerSection("SettingsPlayer" .. modInfo.name 
 
 local Actor = types.Actor
 local Armor = types.Armor
+local Item = types.Item
 local Light = types.Light
 local Weapon = types.Weapon
 
@@ -49,12 +51,19 @@ local function isTwoHanded(weapon)
 		and (WEAPON_TYPES_TWO_HANDED[Weapon.record(weapon).type])
 end
 
--- TODO: Take into account remaining duration (not possible atm)
-local function getFirstLight()
-	for _, light in ipairs(Actor.inventory(self):getAll(Light)) do
-		if (Light.record == nil) then return light end -- Not in 0.48, no API revision update on that MR
-		if (Light.record(light).isCarriable) then return light end
-	end
+local function getLight()
+	local lights = Actor.inventory(self):getAll(Light);
+	if (#lights == 0) then return nil; end;
+	lights, _ = aux_util.mapFilterSort(
+		lights,
+		function (light)
+			if (not Light.record(light).isCarriable) then return nil; end;
+			local condition = Item.itemData(light).condition;
+			if (condition == 0) then return nil; end;
+			return (condition > 0) and condition or 2147483647;
+		end
+	);
+	return lights[(gameplaySettings:get("lightUseOrder") == "ascending") and 1 or #lights];
 end
 
 local function equip(slot, object)
@@ -86,7 +95,7 @@ local function onKeyPress(key)
 	end
 
 	-- If no light Equipped
-	local firstLight = getFirstLight()
+	local firstLight = getLight()
 	if (firstLight) then
 		-- Store currently equipped shield if any
 		lastShield = (carriedLeft and Armor.objectIsInstance(carriedLeft)) and carriedLeft or nil

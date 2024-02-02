@@ -18,6 +18,7 @@ local modEnableDescription = "To mod or not to mod."
 local showMessagesDescription = "Show messages on screen when light is equipped and preferred light is set/cleared."
 local lightHotkeyDescription = "Choose which key equips a light; picking alt isn't recommended as preferred light is set with alt > hotkey."
 local lowerTwoHandedWeaponDescription = "Lowers two-handed weapon when light is equipped."
+local lightUseOrderDescription = "Order in which lights are equipped based on remaining time. Set a preferred light to override."
 
 local function setting(key, renderer, argument, name, description, default)
 	return {
@@ -116,6 +117,7 @@ if (core.API_REVISION >= 31) then
 		name = "Gameplay",
 		permanentStorage = false,
 		settings = {
+			setting("lightUseOrder", "select", {l10n = modInfo.name, items = {"ascending", "descending"}}, "Light Use Order", lightUseOrderDescription, "ascending"),
 			setting("lowerTwoHandedWeapon", "checkbox", {}, "Automatically Lower Two-Handed Weapon", lowerTwoHandedWeaponDescription, true),
 		}
 	}
